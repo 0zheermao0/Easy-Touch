@@ -1,0 +1,272 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:kinectTest"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" x:Class="kinectTest.CalibrationWindow"
+        mc:Ignorable="d"
+        Title="Easy-Touch智能触控系统" Width="858.217" Height="702.706" Closing="WindowClosing" Loaded="WindowLoaded" Topmost="True" WindowStartupLocation="CenterScreen"
+       
+    >
+    <Window.Resources>
+        <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e"/>
+        <SolidColorBrush x:Key="KinectPurpleBrush" Color="#ff52318f"/>
+        <SolidColorBrush x:Key="KinectBlueBrush" Color="#ff00BCF2"/>
+        <Style TargetType="{x:Type Image}">
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="SnapshotButton" >
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <TextBlock x:Name="SnapText" Text="{TemplateBinding Content}" TextAlignment="Left"  VerticalAlignment="Center" Foreground="{StaticResource KinectPurpleBrush}" FontSize="15" />
+                                <Grid Margin="9,0,0,0">
+                                    <Image x:Name="SnapNormal" Source="Images\SnapNormal.png" Stretch="None" HorizontalAlignment="Center"/>
+                                    <Image x:Name="SnapHover" Source="Images\SnapHover.png" Stretch="None" HorizontalAlignment="Center" Visibility="Collapsed"/>
+                                </Grid>
+                            </StackPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Visibility" Value="Collapsed" TargetName="SnapNormal"/>
+                                <Setter Property="Visibility" Value="Visible" TargetName="SnapHover"/>
+                                <Setter Property="Foreground" Value="{StaticResource KinectBlueBrush}" TargetName="SnapText"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="0,0,-6.4,-19.8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="44*"/>
+            <ColumnDefinition Width="354*"/>
+            <ColumnDefinition Width="35*"/>
+            <ColumnDefinition Width="422*"/>
+            <ColumnDefinition Width="0*"/>
+        </Grid.ColumnDefinitions>
+        <Button Style="{StaticResource SnapshotButton}" Content="Screenshot" Height="0" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,638,1.2,25" x:Name="buttonScreenshot" Click="ButtonScreenshotClick" Width="120" Grid.Column="3" />
+        <StatusBar HorizontalAlignment="Stretch" x:Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}" Height="26" Margin="0,0,1.2,0" Grid.ColumnSpan="4">
+            <StatusBarItem Padding="0 0 0 10" RenderTransformOrigin="-0.15,2.326" Margin="0,-14,0,-18.4">
+                <TextBlock x:Name="statusBarText" Margin="-1 0 0 0" Height="38" Width="99"><Run Text="消息提示框"/></TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+        <TabControl x:Name="tabControl"
+            Style="{StaticResource MaterialDesignNavigatilRailTabControl}"
+            materialDesign:ColorZoneAssist.Mode="PrimaryMid" Grid.ColumnSpan="4" Margin="0,0,0.4,44.6">
+            <TabItem x:Name="realTimeImagePage"
+                Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                <TabItem.Header>
+                    <materialDesign:PackIcon
+                        Kind="Heart"
+                        Width="24"
+                        Height="24" />
+                </TabItem.Header>
+                <TabPanel HorizontalAlignment="Left" Height="712.5" VerticalAlignment="Top" Width="776.8" Margin="0,0,0,-49.194">
+                    <Grid HorizontalAlignment="Left" Height="558" VerticalAlignment="Top" Width="0">
+                        <GroupBox
+                            Header="实时校准页面"
+                            Style="{DynamicResource MaterialDesignCardGroupBox}"
+                            Margin="30.5,25.2,-737.9,-26.126">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <StackPanel
+                                        Orientation="Horizontal">
+                                        <materialDesign:PackIcon
+                                            Kind="ImageArea"
+                                            Height="32"
+                                            Width="32"
+          />
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                            Text="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+                            <Image x:Name="realTimeImage" Width="640" Height="480"  Margin="0,10,0,0" VerticalAlignment="Top" />
+                        </GroupBox>
+                        <Button x:Name="PreViewButton" Content="预览" HorizontalAlignment="Left" Height="29" Margin="677,606,-738,-77" VerticalAlignment="Top" Width="61" Click="Preview" RenderTransformOrigin="1.916,3.283" FontSize="10" FontWeight="Bold"/>
+                    </Grid>
+                </TabPanel>
+            </TabItem>
+            <TabItem x:Name="staticImagePage"
+                Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                <TabItem.Header>
+                    <materialDesign:PackIcon
+                        Kind="Spade"
+                        Width="24"
+                        Height="24" />
+                </TabItem.Header>
+                <TabPanel HorizontalAlignment="Left" Height="661.7" VerticalAlignment="Top" Width="776">
+                    <Grid HorizontalAlignment="Left" Height="548.926" VerticalAlignment="Top" Width="0">
+                        <GroupBox
+                            Header="结果预览页面"
+                            Style="{DynamicResource MaterialDesignCardGroupBox}"
+                            Margin="18,16,-721.7,-26">
+                            <GroupBox.HeaderTemplate>
+                                <DataTemplate>
+                                    <StackPanel
+                                        Orientation="Horizontal">
+                                        <materialDesign:PackIcon
+                                            Kind="ImageArea"
+                                            Height="32"
+                                            Width="32"
+                                            VerticalAlignment="Center" />
+                                        <TextBlock
+                                            Margin="8,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                            Text="{Binding}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GroupBox.HeaderTemplate>
+                            <Canvas x:Name ="staticImageCanvas" Height="480" Margin="0,0,0,0.926" VerticalAlignment="Bottom" Width="640">
+                                <Image x:Name="staticImage"  Width="640" Height="480" Stretch="Fill" />
+                            </Canvas>
+                        </GroupBox>
+                        <Grid Margin="716,72,-769,355.926" >
+                            <Ellipse Fill="Red" HorizontalAlignment="Left" Height="10.8" Margin="9.4,0,0,0" Stroke="Red" VerticalAlignment="Top" Width="10.8"/>
+                            <Label Content="左上角" HorizontalAlignment="Left" Height="18" VerticalAlignment="Top" Width="31" FontSize="8" Margin="20,-3.701,0,0"/>
+                            <Ellipse Fill="Blue" HorizontalAlignment="Left" Height="11" Stroke="Blue" VerticalAlignment="Top" Width="11" Margin="9,28.8,0,0"/>
+                            <Label Content="左下角" HorizontalAlignment="Left" Height="18" VerticalAlignment="Top" Width="31" FontSize="8" Margin="20,25.104,0,0"/>
+                            <Ellipse Fill="Lime" HorizontalAlignment="Left" Height="11" Stroke="Lime" VerticalAlignment="Top" Width="11" Margin="9,57.8,0,0"/>
+                            <Label Content="右上角" HorizontalAlignment="Left" Height="18" VerticalAlignment="Top" Width="31" FontSize="8" Margin="20,53.436,0,0"/>
+                            <Ellipse Fill="Yellow" HorizontalAlignment="Left" Height="11" Stroke="Yellow" VerticalAlignment="Top" Width="11" Margin="9,86.8,0,0"/>
+                            <Label Content="右下角" HorizontalAlignment="Left" Height="18" VerticalAlignment="Top" Width="31" FontSize="8" Margin="20,83.438,0,0"/>
+                        </Grid>
+                        <Button x:Name="ApplyButton" Content="应用" HorizontalAlignment="Left" Height="29"  Margin="661,595,-722,-75.074" VerticalAlignment="Top" Width="61" RenderTransformOrigin="2.877,0.642" Click="Apply" FontSize="10" FontWeight="Bold"/>
+                    </Grid>
+                </TabPanel>
+            </TabItem>
+            <TabItem x:Name="InitializationPage"
+                Style="{StaticResource MaterialDesignNavigationRailTabItem}">
+                <TabItem.Header>
+                    <materialDesign:PackIcon Kind="Tree" Width="24" Height="24" />
+                </TabItem.Header>
+                <Grid Background="#FFE5E5E5">
+                    <Border BorderThickness="1" Margin="0,40,0.4,78" >
+                        <Grid Margin="0.2,0.2,-0.6,-0.2">
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="96" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="35*"/>
+                                <ColumnDefinition Width="304" />
+                                <ColumnDefinition Width="11"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!--<Button Grid.ColumnSpan="2" HorizontalAlignment="Right" Grid.Column="1" VerticalAlignment="Top" Margin="0 10 10 0" Click="CloseBtnClick" >
+                <Image Source="Images\Close.png" Height="20" Width="20"></Image>
+            </Button>-->
+
+                            <Image Source="Images/Status.png" Stretch="None" HorizontalAlignment="Left" Grid.ColumnSpan="2" Margin="14,0,0,9" Width="45"/>
+
+                            <Button Margin="64.2,17,282.6,47" Grid.Column="1" Click="ChangeToPrepareBackGround"
+                                Style="{StaticResource MaterialDesignFlatMidBgButton}"
+                                ToolTip="MaterialDesignFlatMidButton" FontSize="12" FontWeight="Medium" Content="背景初始化" />
+                            <!--<Button Margin="64.2,50,282.6,14" Grid.Column="1" Background="Coral" Click="ChangeToCheck" FontSize="12" Content="手动校准"/>-->
+                            <Rectangle Fill="#666" Margin="14,91,10.4,15" Grid.ColumnSpan="2" Grid.RowSpan="2" />
+                            <TextBlock x:Name="txtError" Grid.Row="1" Text="未检测到Kinect连接" Visibility="Collapsed" Foreground="#ccc" FontSize="21" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="247.6,222,264.4,226" Height="0" Width="0"/>
+
+                            <Viewbox Margin="14,91,10.4,15" Stretch="Uniform" x:Name="outputViewbox" Grid.ColumnSpan="2" Grid.RowSpan="2" >
+                                <Image x:Name="outImg" Width="547" Height="332" RenderTransformOrigin="0.5,0.5" />
+
+                            </Viewbox>
+
+
+
+                            <ScrollViewer Margin="0,91,4.4,15" Width="310" Background="#f0f0f0" HorizontalAlignment="Right" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2">
+                                <StackPanel  >
+
+                                    <!--
+                <materialDesign:Card
+    materialDesign:ShadowAssist.ShadowDepth="Depth2"
+    Padding="32" FontWeight="Bold" TextOptions.TextHintingMode="Fixed" Height="50">
+                参数设置
+            </materialDesign:Card>
+                -->
+
+                                    <TextBlock Text="参数设置"  Padding="10" Background="#FF673AB7" Foreground="#DDFFFFFF" />
+                                    <materialDesign:Chip Content="触控点x轴偏置" Icon="*" />
+                                    <StackPanel  Orientation="Horizontal">
+                                        <Slider Orientation="Horizontal" TickPlacement="BottomRight" IsSelectionRangeEnabled="True"
+                                        Width="250"  Minimum="-20" Value="0"  Maximum="20" TickFrequency="2" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="xBias" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=xBias}" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <materialDesign:Chip Content="触控点y轴偏置" Icon="*" />
+                                    <StackPanel  Orientation="Horizontal">
+                                        <Slider Orientation="Horizontal" TickPlacement="BottomRight" IsSelectionRangeEnabled="True"
+                                        Width="250"  Minimum="-20" Value="0"  Maximum="20" TickFrequency="2" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="yBias" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=yBias}" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <materialDesign:Chip Content="深度偏置" Icon="*" />
+                                    <StackPanel  Orientation="Horizontal">
+                                        <Slider Orientation="Horizontal" TickPlacement="BottomRight" IsSelectionRangeEnabled="True"
+                                        Width="250"  Minimum="-10" Value="-3"  Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="depthBias" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=depthBias}" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <materialDesign:Chip Content="最小距离" Icon="1" />
+                                    <StackPanel  Orientation="Horizontal">
+                                        <Slider Orientation="Horizontal" TickPlacement="BottomRight" IsSelectionRangeEnabled="True"
+                                        Width="250"  Minimum="0" Value="0"  Maximum="900" TickFrequency="50" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="sliderMin" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=sliderMin}" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <materialDesign:Chip Content="最大距离" Icon="2" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Orientation="Horizontal" TickPlacement="BottomRight" IsSelectionRangeEnabled="True"
+                                        Width="250"  Minimum="900" Value="2000"  Maximum="4000" TickFrequency="200" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="sliderMax" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=sliderMax}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <materialDesign:Chip Content="最小深度" Icon="3" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Width="250" Minimum="0" Value="14" Maximum="100" Margin="5" x:Name="sliderDMin" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=sliderDMin}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <materialDesign:Chip Content="最大深度" Icon="4" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Width="250" Minimum="0" Value="30" Maximum="200" Margin="5" x:Name="sliderDMax" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=sliderDMax}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <materialDesign:Chip Content="最小轮廓大小" Icon="5" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Width="250" Minimum="1" Value="4" Maximum="50" Margin="5" x:Name="sliderMinSize"  TickFrequency="1" IsSnapToTickEnabled="True" Interval="1" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=sliderMinSize}" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <materialDesign:Chip Content="最大轮廓大小" Icon="6" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Slider Width="250" Minimum="1" Value="100" Maximum="300" Margin="5" x:Name="sliderMaxSize"  TickFrequency="1" IsSnapToTickEnabled="True" Interval="1" Padding="10"/>
+                                        <TextBlock Text="{Binding Value, ElementName=sliderMaxSize}" VerticalAlignment="Center" />
+                                    </StackPanel>
+
+
+                                    <TextBlock Background="#ccc" Text="Info" Margin="0,20,0,0" Padding="10"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+                                        <TextBlock Text="Blobs Detected" Margin="10 0 0 0" />
+                                    </StackPanel>
+                                    <TextBlock TextWrapping="Wrap" x:Name="txtInfo" Text="" Padding="10"/>
+
+                                </StackPanel>
+                            </ScrollViewer>
+
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+
+</Window>
