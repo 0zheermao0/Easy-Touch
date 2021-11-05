@@ -87,6 +87,9 @@ namespace kinectTest
         System.Windows.Shapes.Ellipse rightTopCycle = new System.Windows.Shapes.Ellipse();
         System.Windows.Shapes.Ellipse rightDownCycle = new System.Windows.Shapes.Ellipse();
 
+        // 记录前一个点的位置
+        System.Drawing.Point previousPoint = new System.Drawing.Point(0, 0);
+
 
 
         //原先MainWindow中的参数
@@ -860,8 +863,8 @@ namespace kinectTest
                     var thres_image = gray_image.CopyBlank();
 
                     // 对灰度图像进行高斯平滑处理和Otsu二值化（更多阈值化方法？）
-                    gray_image.SmoothMedian(5);
-                    CvInvoke.cvThreshold(gray_image, gray_image, 0, 255, Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+                    gray_image = gray_image.SmoothMedian(5);
+                    //CvInvoke.cvThreshold(gray_image, gray_image, 0, 255, Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
 
                     //Image<Gray, byte> gray_image = new Image<Gray, byte>(depthBmp.ToBitmap());
                     //创建一个OpenCV内存
@@ -1103,12 +1106,22 @@ namespace kinectTest
             x /= points.Length;
             y /= points.Length;
 
-
-            Console.WriteLine("利用中值求得中心点的坐标为({0},{1}\n)", 2 * x, 2 * y);
-
             //返还中心点
-            return new System.Drawing.Point(x, y);
+            System.Drawing.Point currentPoint = pointsDiff(previousPoint, new System.Drawing.Point(x, y));
+            previousPoint = currentPoint;
+            return currentPoint;
         }
+
+        // 若识别触控的两点距离接近，则返回最开始的中心点，消除噪点抖动
+        private System.Drawing.Point pointsDiff(System.Drawing.Point previousPoint, System.Drawing.Point currentPoint)
+        {
+            if(Math.Abs(previousPoint.X - currentPoint.X) + Math.Abs(previousPoint.Y - currentPoint.Y) < 6)
+            {
+                return previousPoint;
+            }
+            return currentPoint;
+        }
+
 
         /// <summary>
         /// 找到点集的中心

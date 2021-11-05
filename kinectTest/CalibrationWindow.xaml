@@ -213,7 +213,7 @@
                                     <materialDesign:Chip Content="深度偏置" Icon="*" />
                                     <StackPanel  Orientation="Horizontal">
                                         <Slider Orientation="Horizontal" TickPlacement="BottomRight" IsSelectionRangeEnabled="True"
-                                        Width="250"  Minimum="-10" Value="-3"  Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="depthBias" Padding="10"/>
+                                        Width="250"  Minimum="-10" Value="0"  Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Interval="1" Margin="5"  x:Name="depthBias" Padding="10"/>
                                         <TextBlock Text="{Binding Value, ElementName=depthBias}" VerticalAlignment="Center" />
                                     </StackPanel>
 
