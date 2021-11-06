@@ -80,7 +80,7 @@ namespace kinectTest
         }
 
         /// <summary>
-        /// 平均每次我们进行处理的背景深度 【这里也可以进行优化，我觉得可以适当比平均值小一点，以降低噪声，比如平均值-5这样子】
+        /// 平均每次我们进行处理的背景深度
         /// </summary>
         /// <param name="image"></param>
         /// <param name="processingTimes"></param>
@@ -160,7 +160,7 @@ namespace kinectTest
                 //    backgroundDepths[depthIndex] -= (foreground * 0.005);
                 //}
 
-                
+
                 //*****判断是否大于最小深度小于最大深度*****
                 if (foreground > threadhold[depthIndex] && foreground >minDepth && foreground < maxDepth)
                 {

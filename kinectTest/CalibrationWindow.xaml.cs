@@ -90,6 +90,9 @@ namespace kinectTest
         // 记录前一个点的位置
         System.Drawing.Point previousPoint = new System.Drawing.Point(0, 0);
 
+        // 右键确认
+        int rightclick = 0;
+
 
 
         //原先MainWindow中的参数
@@ -860,11 +863,12 @@ namespace kinectTest
                     Console.Write("复制:{0}\t", end - start);
 
                     Image<Gray, byte> gray_image = new Image<Gray, byte>(depthBmp);
-                    var thres_image = gray_image.CopyBlank();
 
-                    // 对灰度图像进行高斯平滑处理和Otsu二值化（更多阈值化方法？）
+                    // 对灰度图像进行高斯平滑处理与形态学操作（更多阈值化方法？）
                     gray_image = gray_image.SmoothMedian(5);
-                    //CvInvoke.cvThreshold(gray_image, gray_image, 0, 255, Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
+                    CvInvoke.cvDilate(gray_image, gray_image, IntPtr.Zero, 3);
+                    CvInvoke.cvErode(gray_image, gray_image, IntPtr.Zero, 3);
+                    CvInvoke.cvThreshold(gray_image, gray_image, 0, 255, Emgu.CV.CvEnum.THRESH.CV_THRESH_OTSU);
 
                     //Image<Gray, byte> gray_image = new Image<Gray, byte>(depthBmp.ToBitmap());
                     //创建一个OpenCV内存
@@ -895,9 +899,8 @@ namespace kinectTest
                                 //将序列返还为数组
                                 System.Drawing.Point[] points = contours.ToArray();
 
-                                //找到点集的中心点?顶点？                   
+                                //找到点集的中心点？顶点？更多中心点算法？                   
                                 //System.Drawing.Point center = findCenterByMoments(contours);
-                                end = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
                                 System.Drawing.Point center = findTop(points);
 
 
@@ -910,7 +913,7 @@ namespace kinectTest
                                 //depthImagePoint.Depth = 1410;
                                 //ColorImagePoint colorImagePoint = this.sensor.CoordinateMapper.MapDepthPointToColorPoint(DepthImageFormat.Resolution640x480Fps30, depthImagePoint, ColorImageFormat.RgbResolution640x480Fps30);
 
-                                // 估算出中心点的下标
+                                // 算出中心点的下标
                                 int depthIndex = depthFrame.Width * center.Y + center.X;
 
 
@@ -944,7 +947,6 @@ namespace kinectTest
                                 Console.Write("转换坐标:{0}\t", end - start);
 
                                 //加入点
-                                
 
                                 //Console.WriteLine("获取到X坐标：" + x_virtual);
                                 //Console.WriteLine("获取到Y坐标：" + y_virtual);
@@ -953,9 +955,6 @@ namespace kinectTest
                                 //blobCount++;
                             }
                         }
-                        long contourEnd= new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                        Console.Write("寻找轮廓{0}\t", contourEnd - contourStart);
-
 
                         // 已经获取到屏幕上的一系列点，接下来作出动作判断 
 
@@ -992,19 +991,22 @@ namespace kinectTest
                                 else
                                 {
                                     //判定为右键单击
-                                    //MouseClicker.MouseRightSingleClick((int)(points_store[0, 0] - xOffset), (int)(points_store[0, 1] - yOffset));
-                                    //ifRightClick = true;
-                                    //有效点数目大于0小于等于I，此时构成单击事件
-                                    //判定为拖拽开始
-                                    MouseClicker.MouseDragStart((int)(points_store[0, 0] - xOffset), (int)(points_store[0, 1] - yOffset));
-                                    for (; dragIndex < (index - 1); dragIndex++)
-                                    {
-                                        MouseClicker.MouseDragMove((int)(points_store[dragIndex, 0] - xOffset), (int)(points_store[dragIndex, 1] - yOffset));
-                                    }
-
-
-
-                                    ifDragNow = true;
+                                    //Console.WriteLine("右键确认次数" + rightclick);
+                                    //if(rightclick == 30)
+                                    //{
+                                        MouseClicker.MouseRightSingleClick((int)(points_store[0, 0] - xOffset), (int)(points_store[0, 1] - yOffset));
+                                        ifRightClick = true;
+                                    //}
+                                    //else
+                                    //{
+                                    //    MouseClicker.MouseDragStart((int)(points_store[0, 0] - xOffset), (int)(points_store[0, 1] - yOffset));
+                                    //    for (; dragIndex < (index - 1); dragIndex++)
+                                    //    {
+                                    //        MouseClicker.MouseDragMove((int)(points_store[dragIndex, 0] - xOffset), (int)(points_store[dragIndex, 1] - yOffset));
+                                    //    }
+                                    //    ifDragNow = true;
+                                    //    rightclick++;
+                                    //}
                                 }
                             }
                             //if (dragIndex % 2 == 0)
@@ -1052,17 +1054,9 @@ namespace kinectTest
                         stop:;
                         }
 
-                    }
-                    end = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                    Console.Write("操作:{0}\t", end - start);
-                    
+                    }                 
                     //将处理后的深度识别结果输出到WPF界面上
-                    start = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                    this.outImg.Source = ImageHelpers.ToBitmapSource(gray_image);
-                    end = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                    Console.Write("画图:{0}\t", end - start);
-                    long totalEnd = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeMilliseconds();
-                    Console.Write("总共:{0}\n", totalEnd - totalStart);
+                    this.outImg.Source = ImageHelpers.ToBitmapSource(gray_image);              
                 }
             }
         }
@@ -1112,10 +1106,10 @@ namespace kinectTest
             return currentPoint;
         }
 
-        // 若识别触控的两点距离接近，则返回最开始的中心点，消除噪点抖动
+        // 若识别触控的两点距离接近或极远，则返回最开始的中心点，消除噪点抖动
         private System.Drawing.Point pointsDiff(System.Drawing.Point previousPoint, System.Drawing.Point currentPoint)
         {
-            if(Math.Abs(previousPoint.X - currentPoint.X) + Math.Abs(previousPoint.Y - currentPoint.Y) < 6)
+            if(Math.Abs(previousPoint.X - currentPoint.X) + Math.Abs(previousPoint.Y - currentPoint.Y) < 10 || Math.Abs(previousPoint.X - currentPoint.X) + Math.Abs(previousPoint.Y - currentPoint.Y) > 400)
             {
                 return previousPoint;
             }
